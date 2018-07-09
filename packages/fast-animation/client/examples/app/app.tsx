@@ -6,7 +6,7 @@ import TestPage from "./components/TestPage";
  * App component definition
  * @extends React.Component
  */
-class App extends React.Component {
+export default class App extends React.Component<{}, {}> {
 
     /**
      * Renders the component
@@ -20,9 +20,17 @@ class App extends React.Component {
 }
 
 /**
+ * Create the root node
+ */
+const root: HTMLElement = document.createElement("div");
+root.setAttribute("id", "root");
+document.body.appendChild(root);
+
+/**
  * Primary render function for app. Called on store updates
  */
 ReactDOM.render(
     <App />,
     document.getElementById("root")
 );
+

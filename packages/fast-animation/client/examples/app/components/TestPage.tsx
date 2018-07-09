@@ -12,8 +12,18 @@ import AnimateFrom from "[lib]/animateFrom";
 import { cubicBezier } from "[lib]/curves";
 import AnimateGroup from "[lib]/animateGroup";
 import AnimateSequence from "[lib]/animateSequence";
+import { ComponentStyles, ICSSRules } from "@microsoft/fast-jss-manager";
+import { IManagedClasses } from "@microsoft/fast-components-class-name-contracts-base";
+import manageJss, { IJSSManagerProps } from "@microsoft/fast-jss-manager-react";
+export interface ITestPageClassNameContract {
+    test: string;
+}
 
-class TestPage extends React.Component {
+const styles: ComponentStyles<ITestPageClassNameContract, {}> = {
+    test: {}
+};
+
+class TestPage extends React.Component<{} & IManagedClasses<ITestPageClassNameContract>, {}> {
     private scrollElement: HTMLElement;
 
     public componentDidMount(): void {
@@ -336,4 +346,4 @@ class TestPage extends React.Component {
     }
 }
 
-export default TestPage;
+export default manageJss(styles)(TestPage);

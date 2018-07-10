@@ -6,7 +6,7 @@ import TestPage from "./components/TestPage";
  * App component definition
  * @extends React.Component
  */
-export default class App extends React.Component<{}, {}> {
+export default class App extends React.Component {
 
     /**
      * Renders the component
@@ -14,7 +14,7 @@ export default class App extends React.Component<{}, {}> {
      */
     public render(): JSX.Element {
         return (
-            <TestPage />
+            <TestPage managedClasses={undefined} />
         );
     }
 }
@@ -33,4 +33,3 @@ ReactDOM.render(
     <App />,
     document.getElementById("root")
 );
-

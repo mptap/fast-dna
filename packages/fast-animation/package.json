@@ -46,7 +46,6 @@
     ]
   },
   "devDependencies": {
-    "@microsoft/fast-components-class-name-contracts-base": "^1.8.0",
     "@microsoft/fast-jest-snapshots-react": "^1.8.0",
     "@microsoft/fast-jss-manager": "^1.8.0",
     "@microsoft/fast-jss-manager-react": "^1.8.0",
@@ -97,7 +96,6 @@
   },
   "peerDependencies": {
     "lodash-es": "^4.0.0",
-    "@microsoft/fast-components-class-name-contracts-base": "^1.8.0",
     "@microsoft/fast-jest-snapshots-react": "^1.8.0",
     "@microsoft/fast-jss-manager": "^1.8.0",
     "@microsoft/fast-jss-manager-react": "^1.8.0",

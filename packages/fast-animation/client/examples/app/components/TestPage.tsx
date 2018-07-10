@@ -20,10 +20,12 @@ export interface ITestPageClassNameContract {
 }
 
 const styles: ComponentStyles<ITestPageClassNameContract, {}> = {
-    test: {}
+    test: {
+        display: "block"
+    }
 };
 
-class TestPage extends React.Component<{} & IManagedClasses<ITestPageClassNameContract>, {}> {
+class TestPage extends React.Component<IManagedClasses<ITestPageClassNameContract>, {}> {
     private scrollElement: HTMLElement;
 
     public componentDidMount(): void {
@@ -67,7 +69,7 @@ class TestPage extends React.Component<{} & IManagedClasses<ITestPageClassNameCo
 
     public render(): JSX.Element {
         return (
-            <div>
+            <div className={this.props.managedClasses.test}>
                 <div className="container-square">
                     <div id="highlighter"/>
                     <div className="page-container">

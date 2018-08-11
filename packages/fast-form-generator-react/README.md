@@ -1,65 +1,98 @@
-
-# ReactJS FAST form generator
-A self generating UI based on JSON Schemas.
-
-Dynamically generates a form user interface based on incoming JSON Schemas to change data values of a React component.
+# Schema form generator
+The schema form generator has a default export `Form` component which takes a JSON schema and converts it into a form element.
 
 ## Installing
 `npm i --save @microsoft/fast-form-generator-react`
 
-## Using the form generator
-### Basic usage
-The required properties are the data, schema, and onChange function. The data should be tied to your state as the data will change when editing the form.
-
+## Importing to a file
 ```jsx
 import Form from "@microsoft/fast-form-generator-react";
+```
 
-/**
- * Add to your render function
- */
+## Usage
+- [Uncontrolled](./README.md#uncontrolled)
+- [Editing (Updating data)](./README.md#editing)
+- [Controlled](./README.md#controlled)
+- [Custom children](./README.md#custom-children)
+- [Using layout components](./README.md#using-layout-components)
+- [Add categories](./README.md#add-categories)
+- [Customize input attributes](./README.md#customize-input-attributes)
+- [Writing schemas](./README.md#writing-schemas)
+
+## Uncontrolled
+An uncontrolled implementation of the `Form` allows the `Form` to control it's own navigation. This is the most basic implementation.
+
+Example:
+```jsx
 <Form
-    data={this.state.currentComponentData}
-    schema={currentComponentSchema}
-    onChange={handleChange}
+    data={componentData}
+    schema={componentSchema}
 />
 ```
 
-### onChange
-The onChange is used as a callback, it should take one argument that is the data that should be updated when any data has been changed from within the generated form.
+Required props:
+- `data` - The components data
+- `schema` - The components schema
 
-example onChange:
+## Editing
+Live editing can be achieved by using the `onChange` prop which will fire a change event with a full set of updated component data.
+
+Example:
 ```jsx
-/**
- * The app on change event
- */
-onChange = (data) => {
+<Form
+    data={this.state.componentData}
+    schema={componentSchema}
+    onChange={this.handleChange}
+/>
+```
+
+Example `onChange` handler:
+```jsx
+handleChange = (updatedComponentData) => {
     this.setState({
-        currentComponentData: data
+        componentData: updatedComponentData
     });
 }
 ```
 
-Where the component is a button and the data being passed to the `onChange` is:
+## Controlled
+If the `location` prop is passed the `Form` becomes controlled and all navigation must be handled.
 
-```json
-{
-    "disabled": true
+If there are sections created via `children`, `array` or `object`s, this allows these sections to be navigated to outside of the `Form` components control.
+
+Example:
+```jsx
+<Form
+    data={this.state.componentData}
+    schema={componentSchema}
+    location={{
+        schemaLocation: this.state.schemaLocation,
+        dataLocation: this.state.dataLocation,
+        onChange: this.handeLocationOnChange
+    }}
+/>
+```
+
+Example location `onChange` handler:
+```jsx
+handeLocationOnChange = (updatedSchemaLocation, updatedDataLocation) => {
+    this.setState({
+        schemaLocation: updatedSchemaLocation,
+        dataLocation: updatedDataLocation
+    });
 }
 ```
 
-### Advanced usage
-Outside of the basic use case you can provide some additional functionality through optional properties.
+## Custom children
+As an extension to the JSON schema format, an additional property declaration of "reactProperties" can be added to an object and an additional type of "children" can be used. This additional type can also optionally restrict React components that can be used as children in the component by their schema id, if this is not specified all passed `childOptions` are allowed as children.
 
-**childOptions** - Children by default only include text elements. If you want to add some child components you are providing, you can do this through the `childOptions`.
+The `childOptions` array, enumerates the potential React components which can be children. By default the only allowed children is a text element.
 
+Example:
 ```jsx
-import Form from "@microsoft/fast-form-generator-react";
-import { Button, ButtonSchema } from "@microsoft/fast-components-react-msft";
-
 <Form
-    data={this.state.currentComponentData}
-    schema={currentComponentSchema}
-    onChange={handleChange}
+    data={this.state.componentData}
+    schema={componentSchema}
     childOptions={[
         {
             name: "Button",
@@ -70,15 +103,63 @@ import { Button, ButtonSchema } from "@microsoft/fast-components-react-msft";
 />
 ```
 
-**componentMappingToPropertyNames** - There are special components that can be mapped to property names so that they are used. An example would be `alignHorizontal` which when mapped will show alignment controls instead of a select dropdown. You can map them to one or more different property names so if your component has a property `alignHorizontalSpacingForTitle` and `alignHorizontalSpacingForImage`:
+Example component schema which can have any children as options:
+```json
+{
+    "$schema": "http://json-schema.org/schema#",
+    "id": "example-component",
+    "type": "object",
+    "properties": {
+        "text": {
+            "type": "string"
+        }
+    },
+    "reactProperties": {
+        "children": {
+            "type": "children"
+        }
+    }
+}
+```
+
+Restricted children example:
+```json
+"reactProperties": {
+    "children": {
+        "type": "children",
+        "id": [
+            "button"
+        ]
+    }
+}
+```
+
+When returning data the properties will have to be mapped to a child.
+
+Data returned from `onChange`:
+```json
+{
+    "text": "Foo",
+    "children": [
+        {
+            "id": "button",
+            "props": {
+                "text": "Bar"
+            }
+        }
+    ]
+}
+```
+
+## Using layout components
+Other input controls are available for a more user friendly interface. This can be achieved by passing `componentMappingToPropertyNames` which will map a layout component to a property name. You can map them to one or more different property names.
+
+Example of mapping the `alignHorizontal` layout component to multiple property names:
 
 ```jsx
-import Form from "@microsoft/fast-form-generator-react";
-
 <Form
-    data={this.state.currentComponentData}
-    schema={currentComponentSchema}
-    onChange={handleChange}
+    data={this.state.componentData}
+    schema={componentSchema}
     componentMappingToPropertyNames={{
         alignHorizontal: [
             "alignHorizontalSpacingForTitle",
@@ -88,42 +169,27 @@ import Form from "@microsoft/fast-form-generator-react";
 />
 ```
 
-Each special component is listed in the form component [README.md](./src/form/README.md)
+### Available layout components
+#### Align horizontal
+This must be mapped to a property with type `string` and the `enum` modifier with string values "left", "center", "right".
 
-**attributeSettingsMappingToPropertyNames** - The attributes of a form item can be mapped to by this prop. An example of updating the textarea row to be 1 when the property name is `text`:
+#### Align vertical
+This must be mapped to a property with type `string` and the `enum` modifier with string values "top", "center", "bottom".
 
-```jsx
-import Form from "@microsoft/fast-form-generator-react";
+#### Theme
+This must be mapped to a property with type `string` and the `enum` modifier with string values "dark" & "light".
 
-<Form
-    data={this.state.currentComponentData}
-    schema={currentComponentSchema}
-    onChange={handleChange}
-    attributeSettingsMappingToPropertyNames={{
-        textarea: {
-            rows: [
-                {
-                    propertyNames: ["text"],
-                    value: 1
-                }
-            ]
-        }
-    }
-/>
-```
+## Add categories
+The `orderByPropertyNames` can sort properties into categories and give them weight which provides more granular control of their sorting within the category.
 
-**orderByPropertyNames** - Properties can be assigned a category with titles to give the form more structure. They can also be weighted, an example of displaying properties related to content on top of properties which relate to formatting:
+Example of displaying properties related to content on top of properties which relate to formatting:
 
 *This also tells the form generator to only display categories once there are 4 or more and gives a default category weight*
 
 ```jsx
-
-import Form from "@microsoft/fast-form-generator-react";
-
 <Form
-    data={this.state.currentComponentData}
-    schema={currentComponentSchema}
-    onChange={handleChange}
+    data={this.state.componentData}
+    schema={componentSchema}
     orderByPropertyNames={{
         showCategoriesAtPropertyCount: 4,
         defaultCategoryWeight: 20,
@@ -146,6 +212,28 @@ import Form from "@microsoft/fast-form-generator-react";
             }
         ]
     }}
+/>
+```
+
+## Customize input attributes
+The attributes of a form item can be adjusted by `attributeSettingsMappingToPropertyNames` which maps an attribute of a layout component or default form component to a property name.
+
+Example of updating the textarea row to be 1 when the property name is `text`:
+
+```jsx
+<Form
+    data={this.state.componentData}
+    schema={componentSchema}
+    attributeSettingsMappingToPropertyNames={{
+        textarea: {
+            rows: [
+                {
+                    propertyNames: ["text"],
+                    value: 1
+                }
+            ]
+        }
+    }
 />
 ```
 
@@ -288,4 +376,4 @@ The object type will create its own section which can be navigated to via a link
 ### Keywords that cannot be interpreted
 
 #### allOf & $ref
-The allOf and $ref keywords cannot be interpreted by the schema form generator. To allow for most of the functionality there is a tool inside the @microsoft/fast-permutator which will simplify the schema and merge allOf arrays when it finds them, see `simplifySchemas`.
+The `allOf` and `$ref` keywords cannot be interpreted by the schema form generator. To allow for most of the functionality there is a tool inside the `@microsoft/fast-permutator` which will simplify the schema and merge allOf arrays when it finds them, see `simplifySchemas`.

@@ -25,3 +25,20 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+
+
+1. createPortal hooks onto a dom node, this will then cause the parent to update, the structure should look like:
+
+<div>
+    // fancy wrapper
+    <iframe>
+        <div id="root" />
+    </iframe>
+    <contents /> <= exists as a createPortal
+</div>
+
+series of events:
+- render the wrapper
+- render the iframe - the iframe forward refs a created DOMNode for the content
+- 

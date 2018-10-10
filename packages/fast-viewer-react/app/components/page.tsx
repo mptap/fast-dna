@@ -1,25 +1,16 @@
 import * as React from "react";
+import { stylesheetRegistry } from "@microsoft/fast-jss-manager-react";
 import jss from "jss";
-import preset from "jss-preset-default";
-import Viewer, { ViewerConfig, ViewerProps } from "../../src/components/viewer";
-import manager, { theme } from "../utilities/style-manager";
+import Viewer, { Device, ViewerSlot } from "../../src";
+import { theme } from "../utilities/style-manager";
 import Example from "./example";
-
-jss.setup(preset());
-
-const styles: any = {
-    wrapper: {
-        width: (themeStyle: any): string => themeStyle.width,
-    },
-};
-
-const stylesheet: any = jss.createStyleSheet(styles, {link: true}).update(theme);
 
 export interface PageState {
     width: number;
-    data: any;
-    exampleStyles: string;
-    viewerConfig: ViewerConfig;
+    componentProps: any;
+    exampleStyles: any;
+    device: Device;
+    minHeight: number;
 }
 
 class Page extends React.Component<{}, PageState> {
@@ -27,93 +18,87 @@ class Page extends React.Component<{}, PageState> {
         super(props);
 
         this.state = {
-            data: {
-                getStyles: this.onGetStyles,
+            componentProps: {
                 onChange: this.handleTextUpdate,
                 textValue: "",
             },
-            exampleStyles: "",
-            viewerConfig: {
-                browser: true,
-                height: {
-                    min: 200
-                }
-            },
+            exampleStyles: null,
+            device: Device.desktop,
+            minHeight: 200,
             width: 100
         };
     }
 
-    public componentWillMount(): void {
-        manager.add("wrapper", stylesheet);
-        manager.manage("wrapper");
+    public componentDidMount(): void {
+        window.setTimeout(() => {
+            this.forceUpdate();
+        }, 0);
     }
 
-    public componentWilUnmount(): void {
-        manager.unmanage("wrapper");
+    public render(): JSX.Element {
+        return (
+            <div style={{ width: `${this.state.width}%` }}>
+                {this.state.componentProps.textValue}
+                <div>
+                    {`width: ${this.state.width}%`}
+                    <input type="range" min={0} max={100} value={this.state.width} onChange={this.handleRangeUpdate} />
+                    <input type="text" onChange={this.handleTextUpdate} value={this.state.componentProps.textValue} />
+                </div>
+                <Viewer
+                    minHeight={this.state.minHeight}
+                    device={this.state.device}
+                >
+                    <title slot={ViewerSlot.head}>test meta data title</title>
+                    {this.getStyles()}
+                    <Example
+                        slot={ViewerSlot.body}
+                        textValue={this.state.componentProps.textValue}
+                        onChange={this.handleTextUpdate}
+                    />
+                </Viewer>
+            </div>
+        );
     }
 
-    public handleRangeUpdate = ({ target: { value }}: any): void => {
+    private getStyles = (): JSX.Element => {
+        return (
+            <style slot={ViewerSlot.head} type="text/css">
+                {stylesheetRegistry.toString()}
+            </style>
+        );
+    }
+
+    private handleRangeUpdate = ({ target: { value }}: any): void => {
         theme.width = `${value}%`;
         this.setState({ width: value });
     }
 
-    public handleTextUpdate = (value: any): void => {
+    private handleTextUpdate = (value: any): void => {
         if (typeof value === "object" && value.target) {
             this.setState(
                 {
-                    data: {
+                    componentProps: {
                         getStyles: this.onGetStyles,
                         onChange: this.handleTextUpdate,
                         textValue: value.target.value,
-                    },
+                    }
                 },
             );
         } else {
             this.setState(
                 {
-                    data: {
+                    componentProps: {
                         getStyles: this.onGetStyles,
                         onChange: this.handleTextUpdate,
                         textValue: value,
-                    },
+                    }
                 },
             );
         }
     }
 
-    public onUpdate = (value: any): void => {
-        this.setState(
-            {
-                data: {
-                    getStyles: this.onGetStyles,
-                    onChange: this.handleTextUpdate,
-                    textValue: value,
-                },
-            },
-        );
-    }
-
-    public onGetStyles = (style: string): void => {
-        this.setState({exampleStyles: style});
-    }
-
-    public render(): JSX.Element {
-        return (
-            <div className={stylesheet.classes.wrapper}>
-                {this.state.data.textValue}
-                <div>
-                    {`width: ${this.state.width}%`}
-                    <input type="range" min={0} max={100} value={this.state.width} onChange={this.handleRangeUpdate} />
-                    <input type="text" onChange={this.handleTextUpdate} value={this.state.data.textValue} />
-                </div>
-                <Viewer
-                    component={Example}
-                    config={this.state.viewerConfig}
-                    data={this.state.data}
-                    styles={this.state.exampleStyles}
-                />
-            </div>
-        );
+    private onGetStyles = (style: string): void => {
+        this.setState({exampleStyles: <style type={"text/css"}>{style}</style>});
     }
 }
 

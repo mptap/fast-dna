@@ -19,7 +19,7 @@
   ],
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -p ./src/tsconfig.json",
+    "build": "tsc -p ./tsconfig.json",
     "build:app": "webpack --progress",
     "prepare": "npm run build",
     "start": "webpack-dev-server --progress",
@@ -85,7 +85,8 @@
     "babel-core": "^6.26.0",
     "babel-jest": "^22.4.3",
     "babel-preset-env": "^1.6.1",
-    "fork-ts-checker-webpack-plugin": "^0.4.0",
+    "enzyme": "^3.7.0",
+    "enzyme-adapter-react-16": "^1.6.0",
     "html-webpack-plugin": "^3.0.0",
     "jest": "^22.2.1",
     "jss": "^9.8.1",
@@ -106,5 +107,11 @@
     "webpack": "^4.0.1",
     "webpack-cli": "^3.1.1",
     "webpack-dev-server": "^3.1.0"
+  },
+  "dependencies": {
+    "@microsoft/fast-components-foundation-react": "^2.0.0",
+    "@microsoft/fast-jss-manager": "^3.0.1",
+    "@microsoft/fast-jss-manager-react": "^3.0.1",
+    "utility-types": "^2.1.0"
   }
 }

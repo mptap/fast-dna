@@ -2,9 +2,16 @@ app/
 src/
 
 #  Tests
-__test__/
+__tests__/
 *.spec.*
 *.test.*
 
 # babel config
 .babelrc
+
+# typescript specific files
+tsconfig.json
+tslint.json
+
+# webpack
+webpack.config.js
